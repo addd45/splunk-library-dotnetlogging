@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -117,7 +118,7 @@ namespace Splunk.Logging
         /// intercepts logging HTTP traffic.
         /// </param>
         public HttpEventCollectorTraceListener(
-            Uri uri, string token,
+            Uri uri, string token, string channel,
             HttpEventCollectorEventInfo.Metadata metadata = null,
             HttpEventCollectorSender.SendMode sendMode = HttpEventCollectorSender.SendMode.Sequential,
             int batchInterval = HttpEventCollectorSender.DefaultBatchInterval,
@@ -128,7 +129,7 @@ namespace Splunk.Logging
         {
             this.formatter = formatter;
             sender = new HttpEventCollectorSender(
-                uri, token, metadata,
+                uri, token, channel, metadata,
                 sendMode, 
                 batchInterval, batchSizeBytes, batchSizeCount, 
                 middleware,
@@ -148,18 +149,27 @@ namespace Splunk.Logging
         /// <param name="batchSizeBytes">Batch max size.</param>
         /// <param name="batchSizeCount">MNax number of individual events in batch.</param>        
         public HttpEventCollectorTraceListener(
-            Uri uri, string token,
+            Uri uri, string token, string channel,
             int retriesOnError,
             HttpEventCollectorEventInfo.Metadata metadata = null,
             HttpEventCollectorSender.SendMode sendMode = HttpEventCollectorSender.SendMode.Sequential,
             int batchInterval = HttpEventCollectorSender.DefaultBatchInterval,
             int batchSizeBytes = HttpEventCollectorSender.DefaultBatchSize,
             int batchSizeCount = HttpEventCollectorSender.DefaultBatchCount)
-            : this(uri, token, metadata, 
+            : this(uri, token, channel, metadata, 
                    sendMode,
                    batchInterval, batchSizeBytes, batchSizeCount,
                    (new HttpEventCollectorResendMiddleware(retriesOnError)).Plugin)
         {
+        }
+
+        public void SSLOptions(SecurityProtocolType protocolType, bool sslVerify = true)
+        {
+            if (!sslVerify)
+            {
+                ServicePointManager.ServerCertificateValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
+            }
+            ServicePointManager.SecurityProtocol = protocolType;
         }
 
         /// <summary>

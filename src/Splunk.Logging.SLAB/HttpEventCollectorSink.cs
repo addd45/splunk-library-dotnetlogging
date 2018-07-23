@@ -136,7 +136,7 @@ namespace Splunk.Logging
         /// intercepts logging HTTP traffic.
         /// </param>
         public HttpEventCollectorSink(
-            Uri uri, string token,
+            Uri uri, string token, string channel,
             IEventTextFormatter formatter,
             HttpEventCollectorEventInfo.Metadata metadata = null,
             HttpEventCollectorSender.SendMode sendMode = HttpEventCollectorSender.SendMode.Sequential,
@@ -147,7 +147,7 @@ namespace Splunk.Logging
         {
             this.formatter = formatter;
             sender = new HttpEventCollectorSender(
-                uri, token, metadata,
+                uri, token, channel, metadata,
                 sendMode,
                 batchInterval, batchSizeBytes, batchSizeCount, 
                 middleware);
@@ -167,7 +167,7 @@ namespace Splunk.Logging
         /// <param name="batchSizeBytes">Batch max size.</param>
         /// <param name="batchSizeCount">MNax number of individual events in batch.</param>        
         public HttpEventCollectorSink(
-            Uri uri, string token,
+            Uri uri, string token, string channel,
             IEventTextFormatter formatter,
             int retriesOnError,
             HttpEventCollectorEventInfo.Metadata metadata = null,
@@ -175,7 +175,7 @@ namespace Splunk.Logging
             int batchInterval = HttpEventCollectorSender.DefaultBatchInterval,
             int batchSizeBytes = HttpEventCollectorSender.DefaultBatchSize,
             int batchSizeCount = HttpEventCollectorSender.DefaultBatchCount)
-            : this(uri, token, formatter, metadata, 
+            : this(uri, token, channel, formatter, metadata, 
                    sendMode,
                    batchInterval, batchSizeBytes, batchSizeCount,
                    (new HttpEventCollectorResendMiddleware(retriesOnError)).Plugin)

@@ -144,7 +144,7 @@ namespace Splunk.Logging
         /// Zero values for the batching params mean that batching is off. 
         /// </remarks>
         public HttpEventCollectorSender(
-            Uri uri, string token, HttpEventCollectorEventInfo.Metadata metadata,
+            Uri uri, string token, string channel, HttpEventCollectorEventInfo.Metadata metadata,
             SendMode sendMode,
             int batchInterval, int batchSizeBytes, int batchSizeCount,
             HttpEventCollectorMiddleware middleware,
@@ -192,6 +192,7 @@ namespace Splunk.Logging
             httpClient = new HttpClient();
             httpClient.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue(AuthorizationHeaderScheme, token);
+            httpClient.DefaultRequestHeaders.Add("X-Splunk-Request-Channel", channel);
         }
 
         /// <summary>
